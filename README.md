@@ -33,3 +33,12 @@ For running tests refer README.test.md
 
 
 # Login
+Login meant to work as a team member. In this application not intended to be secure.
+
+
+# Data Model
+Each device has a Model. In application could be many devices of same model. The registry of models is named ModelRegistry.
+Each device can zero or multiple schedules. A schedule has a start date and an end date.
+Each schedule can be unassigned or assigned to some Tester. A Tester can book any of unassigned schedules.
+A tester can book a non existing schedule in any non scheduled time for a given device.
+When a tester finishes testing, should write a review. The review will be associaded with the model of the device, but not with the device.
