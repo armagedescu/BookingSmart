@@ -20,15 +20,16 @@ This is a QA team frontend for booking smartphones, as described in specificatio
      scripts/dbcreate.sql to be changed if needed, but not needed.
      The script refers local database, this attribute can be changed.
      Database smartbook will be created as result.
-2. First run to generate data
-     Use command line parameter "generate" to run first time, to generate data:
-     java org.filipski.Main generate
+2. Note: This method will rebuild each time all the data from scratch. All previous data will be erased.
+   First run to generate data. Use command line parameter "generate" to run first time, to generate data:
+       java org.filipski.Main generate
 # Further run, use the existing data
-Use command line parameter to run first time, on generated data:
-java org.filipski.Main
+Use command line parameter to run any time, on generated data:
+       java org.filipski.Main
 
 # If tests required to run
-Skip to next secrion if no tests required to be executed.
+Skip to next section if no tests required to be executed.
 For running tests refer README.test.md
 
 
+# Login

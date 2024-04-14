@@ -20,6 +20,8 @@ public class Main {
         switch (args[0]) {
             case "generate":
                 Startup.dataBuilder();
+                GeneralRegistry frame = new GeneralRegistry();
+                frame.setVisible(true);
                 return;
             default:
                 System.out.printf("Unrecognized command line option: %s%n", args[0]);
@@ -31,8 +33,6 @@ public class Main {
 
     private static void runDefault() throws Throwable {
         Startup.dataLoader();
-        List<SmartphoneRegistry> registry = Model.getModel().getRegistry();
-        for (var r : registry) System.out.println(r.getName());
         GeneralRegistry frame = new GeneralRegistry();
         frame.setVisible(true);
     }
