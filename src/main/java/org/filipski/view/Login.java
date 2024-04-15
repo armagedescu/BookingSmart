@@ -11,8 +11,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class Login extends JDialog {
-    public Login(JFrame frame, boolean b) {
-        super(frame, b);
+    public Login(JFrame frame) {
+        super(frame, true);
 
         setTitle("DbClick user to login");
 

@@ -1,10 +1,7 @@
 package org.filipski;
 
-import org.filipski.schema.SmartphoneRegistry;
-import org.filipski.view.GeneralRegistry;
 import org.filipski.model.Model;
-
-import java.util.List;
+import org.filipski.view.GeneralRegistry;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
@@ -23,6 +20,9 @@ public class Main {
                 GeneralRegistry frame = new GeneralRegistry();
                 frame.setVisible(true);
                 return;
+            case "resetdate":
+                runResetDate();
+                return;
             default:
                 System.out.printf("Unrecognized command line option: %s%n", args[0]);
                 System.out.println("   Recognized options: generate");
@@ -32,6 +32,13 @@ public class Main {
     }
 
     private static void runDefault() throws Throwable {
+        //Model.getModel().resetReferenceDate();
+        Startup.dataLoader();
+        GeneralRegistry frame = new GeneralRegistry();
+        frame.setVisible(true);
+    }
+    private static void runResetDate() throws Throwable {
+        Model.getModel().resetReferenceDate();
         Startup.dataLoader();
         GeneralRegistry frame = new GeneralRegistry();
         frame.setVisible(true);

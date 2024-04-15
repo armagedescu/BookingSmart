@@ -1,68 +1,119 @@
 package org.filipski.model;
 
+import jakarta.persistence.Tuple;
 import org.filipski.Startup;
+import org.filipski.schema.Schedule;
+import org.filipski.schema.Smartphone;
 import org.filipski.schema.SmartphoneRegistry;
 import org.filipski.schema.Tester;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.SelectionQuery;
 
-import java.io.Closeable;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@SuppressWarnings("GrazieInspection")
 public class Model {
-    SessionFactory sessionFactory;
+    //Singleton instance, returned by getModel
+    static Model model = null;
+
+    //Hibernate SessionFactory used throughout the program to interact with database
+    //private SessionFactory sessionFactory;
+
+    //Reference Date
+    //Used instead of today
+    private LocalDateTime referenceDate = LocalDateTime.of(2024, 4, 14, 0, 0);
+
+    //Current User is not null if user is logged in.
+    //If user is logged out, current user is set back to null.
+    //This variable is used to detect if a user is logged in.
     private Tester currentUser = null;
 
-
-    class Transactioner implements Closeable
+    //Not callable outside the class.
+    private Model ()
     {
-        Session session;
-        Transaction trans;
-        Transactioner ()
-        {
-            this.session = sessionFactory.getCurrentSession();
-            trans = session.getTransaction();
-            trans.begin();
-        }
-
-        Session get(){return session;}
-
-        @Override
-        public void close() {
-            this.session.getTransaction().commit();
-            this.session.close();
-        }
     }
 
-    private Model (SessionFactory sessionFactory)
-    {
-        this.sessionFactory = sessionFactory;
-    }
-
-    static Model model = null;
     public static Model getModel()
     {
-        if (model == null) model = new Model (Startup.getSessionFactory());
+        if (model == null) model = new Model ();
         return model;
     }
 
 
-    public List<SmartphoneRegistry> getRegistry() {
-        try (Transactioner trs = new Transactioner()) {
-            SelectionQuery<SmartphoneRegistry> query = trs.get().createSelectionQuery(
+    @SuppressWarnings("SpellCheckingInspection")
+    public List<SmartphoneRegistry> getPhoneRegistry() {
+        try (Transactioner tr = new Transactioner(getSessionFactory())){
+            SelectionQuery<SmartphoneRegistry> query = tr.get().createSelectionQuery(
                     "from SmartphoneRegistry",
                     SmartphoneRegistry.class);
-            return query.getResultList();
+            List<SmartphoneRegistry> registryList = query.getResultList();
+
+            for (SmartphoneRegistry smartphoneRegistry: registryList) {
+                SelectionQuery<Long> scount = tr.get().createSelectionQuery("select count(*) from Smartphone where registry.name = :name", Long.class);
+                scount.setParameter("name", smartphoneRegistry.getName());
+
+                Long count = scount.getSingleResult();
+                smartphoneRegistry.setDeviceCount(count.intValue());
+
+                SelectionQuery<Tuple> savg = tr.get().createSelectionQuery("select count(*), ifnull(avg(rate), 0.0) from Review where registry.name = :name", Tuple.class);
+                savg.setParameter("name", smartphoneRegistry.getName());
+                Tuple t = savg.getSingleResult();
+                Long revcnt = (Long)t.get(0);
+                Double avg = (Double)t.get(1);
+
+                smartphoneRegistry.setTotalReviews(revcnt.intValue());
+                smartphoneRegistry.setAvgRating(avg.floatValue());
+
+            }
+
+            return registryList;
         }
     }
     public List<Tester> getUsers() {
-        try (Transactioner trs = new Transactioner()) {
-            SelectionQuery<Tester> query = trs.get().createSelectionQuery(
+        try (Transactioner tr = new Transactioner(getSessionFactory())) {
+            SelectionQuery<Tester> query = tr.get().createSelectionQuery(
                     "from Tester",
                     Tester.class);
             return query.getResultList();
+        }
+    }
+
+    @SuppressWarnings("SpellCheckingInspection")
+    public List<Smartphone> getDevices() {
+        try (Transactioner tr = new Transactioner(getSessionFactory())) {
+            SelectionQuery<Smartphone> query = tr.get().createSelectionQuery(
+                    "from Smartphone",
+                    Smartphone.class);
+            List<Smartphone> devices = query.getResultList();
+
+            for (Smartphone device: devices) {
+
+                //Check schedules count ahead and if busy righ now
+                SelectionQuery<Schedule> ssch = tr.get().createSelectionQuery(
+                        "from Schedule where smartphone.id = :deviceId and finish > :finish order by start",
+                        Schedule.class);
+                ssch.setParameter("deviceId", device.getId());
+                ssch.setParameter("finish", Model.getModel().getReferenceDate());
+                List<Schedule> sch = ssch.getResultList();
+
+                device.setSchedulesCount(sch.size());
+
+                if (sch.isEmpty()) device.setAvailableNow(true);
+                if (!sch.isEmpty())
+                {
+                    Schedule sc = sch.getFirst();
+                    device.setAvailableNow(false);
+
+                    if (sc.getStart().isAfter(Model.getModel().getReferenceDate()))
+                    {
+                        device.setAvailableNow(true);
+                        device.setAvailableDays((int)ChronoUnit.DAYS.between(Model.getModel().getReferenceDate(), sc.getStart()));
+                    }
+                }
+            }
+            return devices;
         }
     }
 
@@ -73,5 +124,36 @@ public class Model {
     public void setCurrentUser(Tester currentUser) {
         this.currentUser = currentUser;
     }
+    public void logOut()
+    {
+        setCurrentUser(null);
+    }
+    public boolean isLoggedIn()
+    {
+        return currentUser != null;
+    }
 
+    public LocalDateTime getReferenceDate() {
+        return referenceDate;
+    }
+
+    public void setReferenceDate(LocalDateTime referenceDate) {
+        this.referenceDate = referenceDate;
+    }
+    //update today to real today
+    public void resetReferenceDate() {
+        setReferenceDate (LocalDateTime.now());
+    }
+
+    public SessionFactory getSessionFactory() {
+        return Startup.getSessionFactory();
+    }
+
+    public void bookNow(Smartphone device, int book) {
+        Schedule schedule = new Schedule(device, getCurrentUser(), getReferenceDate(), book);
+        try (Transactioner tr = new Transactioner(getSessionFactory()))
+        {
+            tr.get().persist (schedule);
+        }
+    }
 }

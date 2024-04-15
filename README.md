@@ -34,6 +34,7 @@ For running tests refer README.test.md
 
 # Login
 Login meant to work as a team member. In this application not intended to be secure.
+The Login is meant to enable tester specific functionalities.
 
 
 # Data Model
@@ -42,3 +43,11 @@ Each device can zero or multiple schedules. A schedule has a start date and an e
 Each schedule can be unassigned or assigned to some Tester. A Tester can book any of unassigned schedules.
 A tester can book a non existing schedule in any non scheduled time for a given device.
 When a tester finishes testing, should write a review. The review will be associaded with the model of the device, but not with the device.
+
+# Reference Date
+Program runs with a reference date, instead of today date. This date can be any date in the future or in the passt.
+This is done only for the purpose of independence of today date, which changes each day.
+It has no practical meaning, but has meaning for being in accordance with pregenerated. 
+To run with real today date, run application with command line parameter "resetdate".
+   Or in Main.runDefault() uncomment following line: //Model.getModel().resetReferenceDate();
+                                      and recompile.

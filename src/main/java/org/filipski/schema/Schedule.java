@@ -22,7 +22,7 @@ public class Schedule {
     @JoinColumn(name="smartphone", nullable = false)
     private Smartphone smartphone;
     @ManyToOne
-    @JoinColumn(name="reviewer", nullable = true)
+    @JoinColumn(name="reviewer", nullable = false)
     private
     Tester reviewer;
 

@@ -1,6 +1,7 @@
 package org.filipski;
 
 import org.filipski.model.DataGenerator;
+import org.filipski.model.Transactioner;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -13,7 +14,7 @@ public class Startup {
         return sessionFactory;
     }
 
-    static void dataBuilder() throws Throwable
+    public static void dataBuilder() throws Throwable
     {
 
         StandardServiceRegistryBuilder registry = new StandardServiceRegistryBuilder();
@@ -24,15 +25,25 @@ public class Startup {
         Metadata metadata = srcs.buildMetadata();
 
         sessionFactory = metadata.buildSessionFactory();
-
+        try (Transactioner tr = new Transactioner(sessionFactory))
+        {
+            for (var r: DataGenerator.registry.values()) tr.get().persist(r);
+            for (var s: DataGenerator.smartphones.values()) tr.get().persist (s);
+            for (var s: DataGenerator.testers.values()) tr.get().persist (s);
+            for (var s: DataGenerator.testPlan.getPlan()) tr.get().persist (s);
+            for (var r: DataGenerator.reviews) tr.get().persist (r);
+        }
+        /* //keep it so far
         sessionFactory.inTransaction(session -> {
             for (var r: DataGenerator.registry.values()) session.persist(r);
             for (var s: DataGenerator.smartphones.values()) session.persist (s);
             for (var s: DataGenerator.testers.values()) session.persist (s);
             for (var s: DataGenerator.testPlan.getPlan()) session.persist (s);
-        });
+            for (var r: DataGenerator.reviews) tr.get().persist (r);
+        });*/
+
     }
-    static void dataLoader() throws Throwable
+    public static void dataLoader() throws Throwable
     {
 
         StandardServiceRegistryBuilder registry = new StandardServiceRegistryBuilder();

@@ -45,8 +45,6 @@ public class PlayGround {
         //assert
         //assertGreater (dt, ddt);
 
-
-
         ddt = LocalDateTime.of(LocalDate.of (2024, 4, 14), LocalTime.of (14, 15));
         assertEquals("2024-04-14T14:15", ddt.toString());
         ddt = LocalDateTime.of(2024, 4, 14, 14, 30);

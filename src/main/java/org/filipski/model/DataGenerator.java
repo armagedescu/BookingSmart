@@ -2,7 +2,7 @@ package org.filipski.model;
 
 import org.filipski.schema.*;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public class DataGenerator {
@@ -50,14 +50,24 @@ public class DataGenerator {
             Map.entry("KK", new Tester ("Kimoto", "Kudzumi"))
         );
 
-    static LocalDateTime referenceDate = LocalDateTime.of(2024, 4, 14, 0, 0);
 
     public static TestPlan testPlan = new TestPlan
         (
-            new Schedule(smartphones.get ("SG S9"), testers.get("JE"), referenceDate, 4),
-            new Schedule(smartphones.get ("SG S9"), null, referenceDate.plusDays(5), 4),
-            new Schedule(smartphones.get ("SG S9"), testers.get("JE"), referenceDate.plusDays(9), 4)
+            new Schedule(smartphones.get ("SG S9"), testers.get("JE"), Model.getModel().getReferenceDate().minusDays(5), 4),
+            new Schedule(smartphones.get ("SG S9"), testers.get("KK"), Model.getModel().getReferenceDate().plusDays(5), 4),
+
+            new Schedule(smartphones.get ("SG S8"), testers.get("DG"), Model.getModel().getReferenceDate().minusDays(5), 4),
+            new Schedule(smartphones.get ("SG S8"), testers.get("VJ"), Model.getModel().getReferenceDate().minusDays(1), 5),
+            new Schedule(smartphones.get ("SG S8"), testers.get("TJ"), Model.getModel().getReferenceDate().plusDays(5), 4),
+
+            new Schedule(smartphones.get ("N 3310"), testers.get("DG"), Model.getModel().getReferenceDate().minusDays(5), 4),
+
+            new Schedule(smartphones.get ("N 3310"), testers.get("TJ"), Model.getModel().getReferenceDate().plusDays(5), 4)
         );
+
+    public static List<Review> reviews = List.of (
+            new Review(registry.get ("SG S8"), "Very good phone, buy ten", 5, Model.getModel().getReferenceDate(), testers.get("KK"))
+    );
 
 
 
