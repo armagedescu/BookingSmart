@@ -1,6 +1,7 @@
 # BookingSmart
 This is a QA team frontend for booking smartphones, as described in specification
 
+
 # Prerequisites
 1. MySQL database is used
 2. scripts/dbcreate.sql used to create the database.
@@ -44,6 +45,7 @@ Each schedule can be unassigned or assigned to some Tester. A Tester can book an
 A tester can book a non existing schedule in any non scheduled time for a given device.
 When a tester finishes testing, should write a review. The review will be associaded with the model of the device, but not with the device.
 
+
 # Reference Date
 Program runs with a reference date, instead of today date. This date can be any date in the future or in the passt.
 This is done only for the purpose of independence of today date, which changes each day.
@@ -60,3 +62,9 @@ User can book a schedule in future within scheduled list of some device.
 Book in future can be on a free period between already booked schedules, or at the end.
 All books are done only after reference date.
 Book is done for a number of days. The application is meant to prevent crossing booking periods.
+
+
+# Reviews
+Reviews can be listed, even if not logged in.
+Reviews are associated to a model, but not to a device of that model.
+Reviews can be seen but not added, this functinality is not implemented.
