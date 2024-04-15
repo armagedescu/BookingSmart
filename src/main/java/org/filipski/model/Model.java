@@ -2,15 +2,13 @@ package org.filipski.model;
 
 import jakarta.persistence.Tuple;
 import org.filipski.Startup;
-import org.filipski.schema.Schedule;
-import org.filipski.schema.Smartphone;
-import org.filipski.schema.SmartphoneRegistry;
-import org.filipski.schema.Tester;
+import org.filipski.schema.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.SelectionQuery;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("GrazieInspection")
@@ -155,5 +153,58 @@ public class Model {
         {
             tr.get().persist (schedule);
         }
+    }
+    public void bookNow(Schedule schedule) {
+        try (Transactioner tr = new Transactioner(getSessionFactory()))
+        {
+            tr.get().persist (schedule);
+        }
+    }
+
+    public List<Review> getReviews(SmartphoneRegistry smartModel) {
+        List<Review> reviews;
+        try (Transactioner tr = new Transactioner(getSessionFactory())) {
+            SelectionQuery<Review> query = tr.get().createSelectionQuery(
+                    "from Review where registry.name = :registry",
+                    Review.class);
+            query.setParameter("registry", smartModel.getName());
+            reviews= query.getResultList();
+        }
+        return reviews;
+    }
+
+    public List<Schedule> getSchedules(Smartphone device) {
+        List<Schedule> schedules = new ArrayList<>();
+        try (Transactioner tr = new Transactioner(getSessionFactory())) {
+            SelectionQuery<Schedule> query = tr.get().createSelectionQuery(
+                    "from Schedule where smartphone.id = :id and finish > :referenceDate order by start",
+                    Schedule.class);
+            query.setParameter("id", device.getId());
+            query.setParameter("referenceDate", Model.getModel().getReferenceDate());
+            List<Schedule> stmp = query.getResultList();
+            Schedule prev = null;
+            for (int i = 0; i < stmp.size(); i++)
+            {
+                Schedule schedule = stmp.get(i);
+                if (prev != null && prev.getFinish() != null)
+                {
+                    int daysAvailable =(int)ChronoUnit.DAYS.between(prev.getFinish(), schedule.getStart());
+                    if (daysAvailable > 1)
+                    {
+                        //(Smartphone smartphone, Tester reviewer, LocalDateTime start, LocalDateTime finish)
+                        Schedule unassigned = new Schedule(device, Model.getModel().getCurrentUser(), prev.getFinish().plusDays(1), daysAvailable);
+                        unassigned.setUnallocated(true);
+                        schedules.add(unassigned);
+                    }
+                }
+                schedules.add(schedule);
+                prev = schedule;
+            }
+
+
+
+
+        }
+        return schedules;
     }
 }

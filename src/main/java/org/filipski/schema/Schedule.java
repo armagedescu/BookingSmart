@@ -3,6 +3,7 @@ package org.filipski.schema;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "Schedule")
@@ -25,6 +26,9 @@ public class Schedule {
     @JoinColumn(name="reviewer", nullable = false)
     private
     Tester reviewer;
+
+    @Transient
+    private boolean unallocated = false;
 
     public Schedule(){}
     public Schedule(Smartphone smartphone, Tester reviewer, LocalDateTime start, LocalDateTime finish)
@@ -72,5 +76,18 @@ public class Schedule {
 
     public void setReviewer(Tester reviewer) {
         this.reviewer = reviewer;
+    }
+
+    public boolean isUnallocated() {
+        return unallocated;
+    }
+
+    public void setUnallocated(boolean unallocated) {
+        this.unallocated = unallocated;
+    }
+    public int getMaxDays()
+    {
+        if (getFinish() == null) return 1000;
+        return (int) ChronoUnit.DAYS.between(getStart(), getFinish());
     }
 }

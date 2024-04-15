@@ -51,3 +51,12 @@ It has no practical meaning, but has meaning for being in accordance with pregen
 To run with real today date, run application with command line parameter "resetdate".
    Or in Main.runDefault() uncomment following line: //Model.getModel().resetReferenceDate();
                                       and recompile.
+
+# Booking
+To be able to make any booking, user must Login, see #Login section. New buttons will be available after login.
+User can book real devices. But can't book models.
+User can book current selected device, if is available to book.
+User can book a schedule in future within scheduled list of some device.
+Book in future can be on a free period between already booked schedules, or at the end.
+All books are done only after reference date.
+Book is done for a number of days. The application is meant to prevent crossing booking periods.

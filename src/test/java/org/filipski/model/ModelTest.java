@@ -1,6 +1,7 @@
 package org.filipski.model;
 
 import org.filipski.Startup;
+import org.filipski.schema.Review;
 import org.filipski.schema.Schedule;
 import org.filipski.schema.Smartphone;
 import org.filipski.schema.SmartphoneRegistry;
@@ -93,6 +94,27 @@ class ModelTest {
         }
         assertEquals(10, devices.size());
     }
+
+
+    @SuppressWarnings({"unused"})
+    @Test
+    void getReviewTest() throws Throwable
+    {
+
+        List<Review> reviews = Model.getModel().getReviews(DataGenerator.registry.get ("SG S8"));
+        assertEquals(1, reviews.size());
+
+    }
+    @SuppressWarnings({"unused"})
+    @Test
+    void getSchedulesTest() throws Throwable
+    {
+
+        List<Schedule> schedules = Model.getModel().getSchedules(DataGenerator.smartphones.get ("N 3310"));
+        assertEquals(1, schedules.size());
+
+    }
+
 
 
 }

@@ -30,6 +30,7 @@ public class BookDeviceDays extends JDialog {
         Container container = this.getContentPane();
         Box box = Box.createHorizontalBox();
         box.add(btnBook);
+        box.add(btnViewSchedules);
         //box.add(btnClose);
 
         container.add(box, BorderLayout.SOUTH);
@@ -43,11 +44,12 @@ public class BookDeviceDays extends JDialog {
         private BookDeviceDays bookDevice;
 
         public void actionPerformed(ActionEvent e) {
+            Smartphone device = getCurrentDevice();
+
             switch (e.getActionCommand()) {
+
                 case "book":
-                    int row = registryTable.getSelectedRow();
-                    if (row < 0 || row >= devices.size()) return;
-                    Smartphone device = devices.get(row);
+                    if (device == null) return;
 
                     DaysMax daysMax = new DaysMax(bookDevice, device.getAvailableDays());
                     daysMax.setVisible(true);
@@ -57,6 +59,9 @@ public class BookDeviceDays extends JDialog {
                     bookDevice.updateData();
                     return;
                 case "view_schedules":
+                    if (device == null) return;
+                    BookDeviceSchedules bookDeviceDays = new BookDeviceSchedules (bookDevice, device);
+                    bookDeviceDays.setVisible(true);
                     bookDevice.updateData();
                     return;
             }
@@ -67,6 +72,12 @@ public class BookDeviceDays extends JDialog {
             return this;
         }
     }.init(this);
+    Smartphone getCurrentDevice()
+    {
+        int row = registryTable.getSelectedRow();
+        if (row < 0 || row >= devices.size()) return null;
+        return devices.get(row);
+    }
 
     void updateData()
     {

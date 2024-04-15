@@ -1,6 +1,7 @@
 package org.filipski.view;
 
 import org.filipski.model.Model;
+import org.filipski.schema.SmartphoneRegistry;
 import org.filipski.schema.Tester;
 
 import javax.swing.*;
@@ -20,6 +21,8 @@ public class GeneralRegistry extends JFrame {
     //Dialogs
     Login loginDialog = new Login(this);
     BookDeviceDays bookDeviceDialog = new BookDeviceDays(this);
+    java.util.List<SmartphoneRegistry> smartRegistry;
+
     public GeneralRegistry() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -52,6 +55,15 @@ public class GeneralRegistry extends JFrame {
         this.pack();
     }
 
+    SmartphoneRegistry getCurrentModel()
+    {
+        int row = registryTable.getSelectedRow();
+        if (row < 0 || row >= smartRegistry.size()) return null;
+        return smartRegistry.get(row);
+
+    }
+
+
 
     ActionListener registryListener = new ActionListener() {
         private GeneralRegistry generalRegistry;
@@ -65,6 +77,12 @@ public class GeneralRegistry extends JFrame {
                 case "logout":
                     Model.getModel().logOut();
                     generalRegistry.updateData();
+                    return;
+                case "reviews":
+                    SmartphoneRegistry smartModel = getCurrentModel();
+                    if (smartModel == null) return;
+                    Reviews reviews = new Reviews(generalRegistry, smartModel);
+                    reviews.setVisible(true);
                     return;
                 case "review":
                     generalRegistry.updateData();
@@ -83,9 +101,11 @@ public class GeneralRegistry extends JFrame {
     }.init(this);
 
 
+
     void updateData() {
         String[] columnNames = {"Model Name", "Devices", "Reviews", "Rating"};
-        final Object[][] rowData = Model.getModel().getPhoneRegistry().stream()
+        smartRegistry = Model.getModel().getPhoneRegistry();
+        final Object[][] rowData = smartRegistry.stream()
                 .map(smr -> new Object[]{smr.getName(), smr.getDeviceCount(), smr.getTotalReviews(), smr.getAvgRating()}).toArray(Object[][]::new);
         registryTable.setModel(new DefaultTableModel(rowData, columnNames));
         Tester tester = Model.getModel().getCurrentUser();
